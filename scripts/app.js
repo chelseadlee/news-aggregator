@@ -254,7 +254,18 @@ APP.Main = (function() {
    */
   function colorizeAndScaleStories() {
 
+    // Base the scale on the y position of the score.
+    var height = main.offsetHeight;
+    var pageTop = document.body.getBoundingClientRect().top;
     var storyElements = document.querySelectorAll('.story');
+
+    var scoreLocations = [];
+
+    for (var i = 0; i < storyElements.length; i++){
+      var story = storyElements[i];
+      var score = story.querySelector('.story__score');
+      scoreLocations.push(score.getBoundingClientRect().top - pageTop);
+    }
 
     // It does seem awfully broad to change all the
     // colors every time!
@@ -264,21 +275,16 @@ APP.Main = (function() {
       var score = story.querySelector('.story__score');
       var title = story.querySelector('.story__title');
 
-      // Base the scale on the y position of the score.
-      var height = main.offsetHeight;
-      var mainPosition = main.getBoundingClientRect();
-      var scoreLocation = score.getBoundingClientRect().top -
-          document.body.getBoundingClientRect().top;
-      var scale = Math.min(1, 1 - (0.05 * ((scoreLocation - 170) / height)));
-      var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation - 170) / height)));
+      // var mainPosition = main.getBoundingClientRect();
+      var scale = Math.min(1, 1 - (0.05 * ((scoreLocations[s] - 170) / height))) * 40;
+      var opacity = Math.min(1, 1 - (0.5 * ((scoreLocations[s] - 170) / height)));
 
-      score.style.width = (scale * 40) + 'px';
-      score.style.height = (scale * 40) + 'px';
-      score.style.lineHeight = (scale * 40) + 'px';
+      score.style.width = scale + 'px';
+      score.style.height = scale + 'px';
+      score.style.lineHeight = scale + 'px';
 
       // Now figure out how wide it is and use that to saturate it.
-      scoreLocation = score.getBoundingClientRect();
-      var saturation = (100 * ((scoreLocation.width - 38) / 2));
+      var saturation = (100 * ((scale - 38) / 2));
 
       score.style.backgroundColor = 'hsl(42, ' + saturation + '%, 50%)';
       title.style.opacity = opacity;
